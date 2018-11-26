@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 @Controller
 @RequestMapping("/eg014")
-public class EG014Controller﻿CollectPayment extends EGController {
+public class EG014ControllerCollectPayment extends EGController {
     @Override
     protected void addSpecialAttributes(ModelMap model) {
         model.addAttribute("gatewayOk", null != config.gatewayAccountId);
