@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.EnvelopesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.esign.model.*;
 import com.sun.jersey.core.util.Base64;
@@ -46,12 +47,15 @@ public class EG001ControllerEmbeddedSigning extends EGController {
     }
 
     @Override
-    protected Object doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
+    protected Object doWork(WorkArguments args, ModelMap model,
+                            String accessToken, String basePath) throws ApiException, IOException {
         // Step 1. Create the envelope definition
         EnvelopeDefinition envelope = makeEnvelope(args.getSignerEmail(), args.getSignerName());
 
         // Step 2. Call DocuSign to create the envelope
-        EnvelopesApi envelopesApi = new EnvelopesApi(sessionApiClient);
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         EnvelopeSummary results = envelopesApi.createEnvelope(args.getAccountId(), envelope);
 
         String envelopeId = results.getEnvelopeId();

@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.EnvelopesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.model.OptionItem;
 import org.json.JSONArray;
@@ -59,8 +60,11 @@ public class EG007ControllerEnvelopeGetDoc extends EGController {
     }
 
     @Override
-    protected Object doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
-        EnvelopesApi envelopesApi = new EnvelopesApi(sessionApiClient);
+    protected Object doWork(WorkArguments args, ModelMap model,
+                            String accessToken, String basePath) throws ApiException {
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         // Step 1. EnvelopeDocuments::get.
         // Exceptions will be caught by the calling function
         byte[] results = envelopesApi.getDocument(args.getAccountId(), args.getEnvelopeId(), args.getDocumentId());

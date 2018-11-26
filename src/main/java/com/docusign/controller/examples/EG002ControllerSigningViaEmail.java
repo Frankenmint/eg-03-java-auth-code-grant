@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.EnvelopesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.esign.model.*;
 import com.sun.jersey.core.util.Base64;
@@ -36,12 +37,15 @@ public class EG002ControllerSigningViaEmail extends EGController {
     }
 
     @Override
-    protected Object doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
+    protected Object doWork(WorkArguments args, ModelMap model,
+                            String accessToken, String basePath) throws ApiException, IOException {
         if (!"created".equalsIgnoreCase(args.getStatus())) {
             args.setStatus("sent");
         }
         EnvelopeDefinition env = makeEnvelope(args);
-        EnvelopesApi envelopesApi = new EnvelopesApi(sessionApiClient);
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         EnvelopeSummary results = envelopesApi.createEnvelope(args.getAccountId(), env);
         args.setEnvelopeId(results.getEnvelopeId());
         session.setAttribute("envelopeId", results.getEnvelopeId());

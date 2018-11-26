@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.EnvelopesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -8,6 +9,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpSession;
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/eg004")
@@ -37,9 +39,12 @@ public class EG004ControllerEnvelopeInfo extends EGController {
     }
 
     @Override
-    protected Object doWork(WorkArguments args, ModelMap model) throws ApiException {
+    protected Object doWork(WorkArguments args, ModelMap model,
+                            String accessToken, String basePath) throws ApiException {
 
-        EnvelopesApi envelopesApi = new EnvelopesApi(sessionApiClient);
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         setMessage("Results from the Envelopes::get method:");
         return envelopesApi.getEnvelope(args.getAccountId(), args.getEnvelopeId());
     }

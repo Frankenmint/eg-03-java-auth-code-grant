@@ -2,6 +2,7 @@ package com.docusign.controller.examples;
 
 import com.docusign.esign.api.EnvelopesApi;
 import com.docusign.esign.api.EnvelopesApi.ListStatusChangesOptions;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.esign.model.EnvelopesInformation;
 import org.joda.time.LocalDate;
@@ -35,9 +36,12 @@ public class EG003ControllerListEnvelopes extends EGController {
     }
 
     @Override
-    protected Object doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
+    protected Object doWork(WorkArguments args, ModelMap model,
+                            String accessToken, String basePath) throws ApiException {
 
-        EnvelopesApi envelopesApi = new EnvelopesApi(sessionApiClient);
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         ListStatusChangesOptions options = envelopesApi.new ListStatusChangesOptions();
 
         LocalDate date = LocalDate.now().minusDays(30);

@@ -43,7 +43,8 @@ public class EG010ControllerSendBinaryDocs extends EGController {
     }
 
     @Override
-    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
+    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
+                                             String accessToken, String basePath) throws IOException {
         // Step 1. Make the envelope JSON request body
         JSONObject envelopeJSON = makeEnvelopeJSON(args);
         Object results = null;

@@ -12,9 +12,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -32,9 +30,6 @@ public abstract class EGController {
 
     @Autowired
     protected HttpSession session;
-
-    @Resource(name = "sessionApiClient")
-    protected ApiClient sessionApiClient;
 
     @Autowired
     protected DSConfiguration config;
@@ -75,7 +70,9 @@ public abstract class EGController {
                          ModelMap model,
                          HttpSession session,
                          @RequestBody MultiValueMap<String, String> formParams,
-                         HttpServletResponse response) throws IOException, ApiException {
+                         HttpServletResponse response,
+                         @ModelAttribute("accessToken") String accessToken,
+                         @ModelAttribute("basePath") String basePath) throws IOException, ApiException {
         // Check again that we have a token. Only a minimal token time is
         // needed since we are about to call DocuSign
         boolean tokenOk = checkToken(minimumBufferMin);
@@ -86,7 +83,7 @@ public abstract class EGController {
 
         try {
             loadFromSessionOrBody(args, formParams);
-            Object result = doWork(args, model);
+            Object result = doWork(args, model, accessToken, basePath);
             String redirectUrl = args.getRedirectUrl();
             if (redirectUrl != null) {
                 postWork(result, model);
@@ -212,7 +209,9 @@ public abstract class EGController {
         return buffer.toByteArray();
     }
 
-    protected abstract Object doWork(WorkArguments args, ModelMap model) throws ApiException, IOException;
+    protected abstract Object doWork(WorkArguments args, ModelMap model,
+                                     @ModelAttribute("accessToken") String accessToken,
+                                     @ModelAttribute("basePath") String basePath) throws ApiException, IOException;
 
     public String getMessage() {
         return message;

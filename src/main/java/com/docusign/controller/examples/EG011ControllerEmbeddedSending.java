@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.EnvelopesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.esign.model.EnvelopeDocumentsResult;
 import com.docusign.esign.model.EnvelopeSummary;
@@ -40,11 +41,14 @@ public class EG011ControllerEmbeddedSending extends EGController {
     EG002ControllerSigningViaEmail controller2;
 
     @Override
-    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
-        EnvelopesApi envelopesApi = new EnvelopesApi(sessionApiClient);
+    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
+                                             String accessToken, String basePath) throws ApiException, IOException {
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         // Step 1. Make the envelope with "created" (draft) status
         args.setStatus("created");
-        EnvelopeSummary results = (EnvelopeSummary) controller2.doWork(args, model);
+        EnvelopeSummary results = (EnvelopeSummary) controller2.doWork(args, model, accessToken, basePath);
         String envelopeId = results.getEnvelopeId();
 
         // Step 2. create the sender view

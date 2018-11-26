@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.TemplatesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.esign.model.*;
 import com.sun.jersey.core.util.Base64;
@@ -41,9 +42,12 @@ public class EG008ControllerCreateTemplate extends EGController {
     }
 
     @Override
-    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
+    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
+                                             String accessToken, String basePath) throws ApiException, IOException {
         args.setTemplateName("Example Signer and CC template");
-        TemplatesApi templatesApi = new TemplatesApi(sessionApiClient);
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        TemplatesApi templatesApi = new TemplatesApi(apiClient);
         TemplatesApi.ListTemplatesOptions options = templatesApi.new ListTemplatesOptions();
         options.setSearchText(args.getTemplateName());
         EnvelopeTemplateResults results = templatesApi.listTemplates(args.getAccountId(), options);
