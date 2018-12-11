@@ -47,50 +47,61 @@ public class EG013ControllerAddDocToTemplate extends EGController {
     @Override
     protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
                                              String accessToken, String basePath) throws ApiException {
+        // Data for this method
+        // accessToken    (argument)
+        // basePath       (argument)
+        // config.appUrl  (url of the application itself)
+        // signerClientId (class constant)
+        String accountId = args.getAccountId();
+
+
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
+
+        // Step 1. Make the envelope request body
+        // prepare arguments
         args.setDsReturnUrl(config.appUrl + "/ds-return");
         args.setDsPingUrl(config.appUrl + "/");
         args.setSignerClientId(signerClientId);
-        // Step 1. Make the envelope request body
         EnvelopeDefinition envelope = makeEnvelope(args);
+
         // Step 2. call Envelopes::create API method
         // Exceptions will be caught by the calling function
-        EnvelopeSummary results = envelopesApi.createEnvelope(args.getAccountId(), envelope);
-
+        EnvelopeSummary results = envelopesApi.createEnvelope(accountId, envelope);
+        // process results
         String envelopeId = results.getEnvelopeId();
-
         System.out.println("Envelope was created. EnvelopeId " + envelopeId);
+
         // Step 3. create the recipient view, the Signing Ceremony
         RecipientViewRequest viewRequest = makeRecipientViewRequest(args);
-        ViewUrl results1 = envelopesApi.createRecipientView(args.getAccountId(), envelopeId, viewRequest);
+        ViewUrl results1 = envelopesApi.createRecipientView(accountId, envelopeId, viewRequest);
         args.setRedirectUrl("redirect:" + results1.getUrl());
         return null;
     }
 
     private RecipientViewRequest makeRecipientViewRequest(WorkArguments args) {
+        // Data for this method
+        String returnUrl = args.getDsReturnUrl();
+        String signerEmail = args.getSignerEmail();
+        String signerName = args.getSignerName();
+        String signerClientId = args.getSignerClientId();
+        String pingUrl = args.getDsPingUrl();
+
 
         RecipientViewRequest viewRequest = new RecipientViewRequest();
         // Set the url where you want the recipient to go once they are done signing
         // should typically be a callback route somewhere in your app.
-        // The query parameter is included as an example of how
-        // to save/recover state information during the redirect to
-        // the DocuSign signing ceremony. It's usually better to use
-        // the session mechanism of your web framework. Query parameters
-        // can be changed/spoofed very easily.
-        viewRequest.setReturnUrl(args.getDsReturnUrl() + "?state=123");
-
+        viewRequest.setReturnUrl(returnUrl);
         // How has your app authenticated the user? In addition to your app's
         // authentication, you can include authenticate steps from DocuSign.
         // Eg, SMS authentication
         viewRequest.setAuthenticationMethod("none");
-
         // Recipient information must match embedded recipient info
         // we used to create the envelope.
-        viewRequest.setEmail(args.getSignerEmail());
-        viewRequest.setUserName(args.getSignerName());
-        viewRequest.setClientUserId(args.getSignerClientId());
+        viewRequest.setEmail(signerEmail);
+        viewRequest.setUserName(signerName);
+        viewRequest.setClientUserId(signerClientId);
 
         // DocuSign recommends that you redirect to DocuSign for the
         // Signing Ceremony. There are multiple ways to save state.
@@ -100,12 +111,20 @@ public class EG013ControllerAddDocToTemplate extends EGController {
         // app,
         viewRequest.setPingFrequency("600"); // seconds
         // NOTE: The pings will only be sent if the pingUrl is an https address
-        viewRequest.setPingUrl(args.getDsPingUrl()); // optional setting
+        viewRequest.setPingUrl(pingUrl); // optional setting
 
         return viewRequest;
     }
 
     private EnvelopeDefinition makeEnvelope(WorkArguments args) {
+        // Data for this method
+        String signerEmail = args.getSignerEmail();
+        String signerName = args.getSignerName();
+        String ccEmail = args.getCcEmail();
+        String ccName = args.getCcName();
+        String signerClientId = args.getSignerClientId();
+        String templateId = args.getTemplateId();
+
         // The envelope request object uses Composite Template to
         // include in the envelope:
         // 1. A template stored on the DocuSign service
@@ -116,17 +135,17 @@ public class EG013ControllerAddDocToTemplate extends EGController {
         //
         // Create a signer recipient for the signer role of the server template
         Signer signer1 = new Signer();
-        signer1.setEmail(args.getSignerEmail());
-        signer1.setName(args.getSignerName());
+        signer1.setEmail(signerEmail);
+        signer1.setName(signerName);
         signer1.setRoleName("signer");
         signer1.setRecipientId("1");
         // Adding clientUserId transforms the template recipient
         // into an embedded recipient:
-        signer1.setClientUserId(args.getSignerClientId());
+        signer1.setClientUserId(signerClientId);
         // Create the cc recipient
         CarbonCopy cc1 = new CarbonCopy();
-        cc1.setEmail(args.getCcEmail());
-        cc1.setName(args.getCcName());
+        cc1.setEmail(ccEmail);
+        cc1.setName(ccName);
         cc1.setRoleName("cc");
         cc1.setRecipientId("2");
         // Recipients object:
@@ -139,7 +158,7 @@ public class EG013ControllerAddDocToTemplate extends EGController {
         compTemplate1.setCompositeTemplateId("1");
         ServerTemplate serverTemplates = new ServerTemplate();
         serverTemplates.setSequence("1");
-        serverTemplates.setTemplateId(args.getTemplateId());
+        serverTemplates.setTemplateId(templateId);
 
         compTemplate1.setServerTemplates(Arrays.asList(serverTemplates));
         // Add the roles via an inlineTemplate
@@ -159,9 +178,9 @@ public class EG013ControllerAddDocToTemplate extends EGController {
         signer1Tabs.setSignHereTabs(Arrays.asList(signHere1));
         // Signer definition for the added document
         Signer signer1AddedDoc = new Signer();
-        signer1AddedDoc.setEmail(args.getSignerEmail());
-        signer1AddedDoc.setName(args.getSignerName());
-        signer1AddedDoc.setClientUserId(args.getSignerClientId());
+        signer1AddedDoc.setEmail(signerEmail);
+        signer1AddedDoc.setName(signerName);
+        signer1AddedDoc.setClientUserId(signerClientId);
         signer1AddedDoc.setRoleName("signer");
         signer1AddedDoc.setRecipientId("1");
         signer1AddedDoc.setTabs(signer1Tabs);
@@ -196,6 +215,15 @@ public class EG013ControllerAddDocToTemplate extends EGController {
     }
 
     private String document1(WorkArguments args) {
+        // Data for this method
+        String signerEmail = args.getSignerEmail();
+        String signerName = args.getSignerName();
+        String ccEmail = args.getCcEmail();
+        String ccName = args.getCcName();
+        String item = args.getItem();
+        String quantity = args.getQuantity();
+
+
         return " <!DOCTYPE html>\n" +
                 "    <html>\n" +
                 "        <head>\n" +
@@ -207,10 +235,10 @@ public class EG013ControllerAddDocToTemplate extends EGController {
                 "        <h2 style=\"font-family: 'Trebuchet MS', Helvetica, sans-serif;\n" +
                 "          margin-top: 0px;margin-bottom: 3.5em;font-size: 1em;\n" +
                 "          color: darkblue;\">Order Processing Division</h2>\n" +
-                "        <h4>Ordered by " + args.getSignerName() + "</h4>\n" +
-                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Email: " + args.getSignerEmail() + "</p>\n" +
-                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Copy to: " + args.getCcName() + "," + args.getCcEmail() + "</p>\n" +
-                "        <p style=\"margin-top:3em; margin-bottom:0em;\">Item: <b>" + args.getItem() + "</b>, quantity: <b>" + args.getQuantity() + "</b> at market price.</p>\n" +
+                "        <h4>Ordered by " + signerName + "</h4>\n" +
+                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Email: " + signerEmail + "</p>\n" +
+                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Copy to: " + ccName + "," + ccEmail + "</p>\n" +
+                "        <p style=\"margin-top:3em; margin-bottom:0em;\">Item: <b>" + item + "</b>, quantity: <b>" + quantity + "</b> at market price.</p>\n" +
                 "        <p style=\"margin-top:3em;\">\n" +
                 "  Candy bonbon pastry jujubes lollipop wafer biscuit biscuit. Topping brownie sesame snaps sweet roll pie. Croissant danish biscuit soufflé caramels jujubes jelly. Dragée danish caramels lemon drops dragée. Gummi bears cupcake biscuit tiramisu sugar plum pastry. Dragée gummies applicake pudding liquorice. Donut jujubes oat cake jelly-o. Dessert bear claw chocolate cake gummies lollipop sugar plum ice cream gummies cheesecake.\n" +
                 "        </p>\n" +

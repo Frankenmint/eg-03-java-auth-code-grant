@@ -1,7 +1,6 @@
 package com.docusign.controller.examples;
 
 import com.docusign.DSConfiguration;
-import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.model.User;
 import org.json.JSONObject;
@@ -13,8 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.web.servlet.view.RedirectView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -66,7 +64,7 @@ public abstract class EGController {
 
     // Base method for POST requests to run an example
     @RequestMapping(method = RequestMethod.POST)
-    public String create(WorkArguments args,
+    public Object create(WorkArguments args,
                          ModelMap model,
                          HttpSession session,
                          @RequestBody MultiValueMap<String, String> formParams,
@@ -85,9 +83,16 @@ public abstract class EGController {
             loadFromSessionOrBody(args, formParams);
             Object result = doWork(args, model, accessToken, basePath);
             String redirectUrl = args.getRedirectUrl();
-            if (redirectUrl != null) {
+            Boolean externalRedirect = redirectUrl != null && redirectUrl.indexOf("redirect:") == 0;
+            if (externalRedirect) {
+                String url = redirectUrl.substring(9); // strip 'redirect:'
+                RedirectView redirect = new RedirectView(url);
+                redirect.setExposeModelAttributes(false);
+                return redirect;
+            } else if (redirectUrl != null) {
+                // show a generic template
                 postWork(result, model);
-                return args.getRedirectUrl();
+                return redirectUrl;
             } else {
                 // download logic
                 JSONObject r = (JSONObject) result;

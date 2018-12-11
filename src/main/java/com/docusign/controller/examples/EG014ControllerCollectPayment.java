@@ -8,7 +8,6 @@ import com.sun.jersey.core.util.Base64;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -37,25 +36,49 @@ public class EG014ControllerCollectPayment extends EGController {
 
     @Override
     protected Object doWork(WorkArguments args, ModelMap model, String accessToken, String basePath) throws ApiException, IOException {
+        // Data for this method
+        // accessToken  (argument)
+        // basePath     (argument)
+        String signerName = args.getSignerName();
+        String signerEmail = args.getSignerEmail();
+        String ccEmail = args.getCcEmail();
+        String ccName = args.getCcName();
+        String status = args.getStatus();
+        String accountId = args.getAccountId();
+
+
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
+
         // Step 1. Make the envelope request body
-        EnvelopeDefinition envelope = makeEnvelope(args.getSignerEmail(), args.getSignerName(),
-                args.getCcEmail(), args.getCcName(), args.getStatus());
+        EnvelopeDefinition envelope = makeEnvelope(signerEmail, signerName,
+                ccEmail, ccName, status);
+
         // Step 2. call Envelopes::create API method
         // Exceptions will be caught by the calling function
-        EnvelopeSummary results = envelopesApi.createEnvelope(args.getAccountId(), envelope);
+        EnvelopeSummary results = envelopesApi.createEnvelope(accountId, envelope);
+        // process results
         String envelopeId = results.getEnvelopeId();
         System.out.println("Envelope was created.EnvelopeId " + envelopeId);
-
         this.setMessage("The envelope has been created and sent!<br/>Envelope ID " + results.getEnvelopeId() + ".");
-//        return View("example_done");
         return null;
     }
 
     private EnvelopeDefinition makeEnvelope(String signerEmail, String signerName,
                                             String ccEmail, String ccName, String status) throws IOException {
+        // Data for this method
+        // signerEmail  (argument)
+        // signerName   (argument)
+        // ccEmail      (argument)
+        // ccName       (argument)
+        // status       (argument)
+        // payment gateway configuration settings:
+        //   config.gatewayAccountId
+        //   config.gatewayName
+        //   config.gatewayDisplayName
+
+
         // document 1 (html) has multiple tags:
         // /l1q/ and /l2q/ -- quantities: drop down
         // /l1e/ and /l2e/ -- extended: payment lines
@@ -72,7 +95,7 @@ public class EG014ControllerCollectPayment extends EGController {
         // NOTA BENA: This method programmatically constructs the        //
         //            order form. For many use cases, it would be        //
         //            better to create the order form as a template      //
-        //            using the DocuSign web tool as WYSIWYG             //
+        //            using the DocuSign web tool as a WYSIWYG           //
         //            form designer.                                     //
         //                                                               //
         ///////////////////////////////////////////////////////////////////

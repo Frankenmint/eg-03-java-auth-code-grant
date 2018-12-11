@@ -8,7 +8,6 @@ import com.sun.jersey.core.util.Base64;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -18,7 +17,6 @@ public class EG002ControllerSigningViaEmail extends EGController {
 
     @Override
     protected void addSpecialAttributes(ModelMap model) {
-
     }
 
     @Override
@@ -39,6 +37,13 @@ public class EG002ControllerSigningViaEmail extends EGController {
     @Override
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException, IOException {
+        // Data for this method
+        // accessToken  (argument)
+        // basePath     (argument)
+        String accountId = args.getAccountId();
+
+
+        // Set status for the makeEnvelope method
         if (!"created".equalsIgnoreCase(args.getStatus())) {
             args.setStatus("sent");
         }
@@ -46,7 +51,9 @@ public class EG002ControllerSigningViaEmail extends EGController {
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
-        EnvelopeSummary results = envelopesApi.createEnvelope(args.getAccountId(), env);
+        EnvelopeSummary results = envelopesApi.createEnvelope(accountId, env);
+
+        // process results
         args.setEnvelopeId(results.getEnvelopeId());
         session.setAttribute("envelopeId", results.getEnvelopeId());
         setMessage("The envelope has been created and sent!<br />Envelope ID " + args.getEnvelopeId() + ".");
@@ -54,6 +61,16 @@ public class EG002ControllerSigningViaEmail extends EGController {
     }
 
     private EnvelopeDefinition makeEnvelope(WorkArguments args) throws IOException {
+        // Data for this method
+        // config.docDocx Name of the docx demo document
+        // config.docPdf  Name of the pdf demo document
+        String signerEmail = args.getSignerEmail();
+        String signerName = args.getSignerName();
+        String ccEmail = args.getCcEmail();
+        String ccName = args.getCcName();
+        String status = args.getStatus();
+
+
         // document 1 (html) has tag **signature_1**
         // document 2 (docx) has tag /sn1/
         // document 3 (pdf) has tag /sn1/
@@ -93,8 +110,8 @@ public class EG002ControllerSigningViaEmail extends EGController {
         // create a signer recipient to sign the document, identified by name and email
         // We're setting the parameters via the object creation
         Signer signer1 = new Signer();
-        signer1.setEmail(args.getSignerEmail());
-        signer1.setName(args.getSignerName());
+        signer1.setEmail(signerEmail);
+        signer1.setName(signerName);
         signer1.setRecipientId("1");
         signer1.setRoutingOrder("1");
 
@@ -105,8 +122,8 @@ public class EG002ControllerSigningViaEmail extends EGController {
         // create a cc recipient to receive a copy of the documents, identified by name and email
         // We're setting the parameters via setters
         CarbonCopy cc1 = new CarbonCopy();
-        cc1.setEmail(args.getCcEmail());
-        cc1.setName(args.getCcName());
+        cc1.setEmail(ccEmail);
+        cc1.setName(ccName);
         cc1.setRecipientId("2");
         cc1.setRoutingOrder("2");
         // Create signHere fields (also known as tabs) on the documents,
@@ -140,12 +157,18 @@ public class EG002ControllerSigningViaEmail extends EGController {
 
         // Request that the envelope be sent by setting |status| to "sent".
         // To request that the envelope be created as a draft, set to "created"
-        env.setStatus(args.getStatus());
-
+        env.setStatus(status);
         return env;
     }
 
     private String document1(WorkArguments args) {
+        // Data for this method
+        String signerEmail = args.getSignerEmail();
+        String signerName = args.getSignerName();
+        String ccEmail = args.getCcEmail();
+        String ccName = args.getCcName();
+
+
         return " <!DOCTYPE html>\n" +
                 "    <html>\n" +
                 "        <head>\n" +
@@ -157,9 +180,9 @@ public class EG002ControllerSigningViaEmail extends EGController {
                 "        <h2 style=\"font-family: 'Trebuchet MS', Helvetica, sans-serif;\n" +
                 "          margin-top: 0px;margin-bottom: 3.5em;font-size: 1em;\n" +
                 "          color: darkblue;\">Order Processing Division</h2>\n" +
-                "        <h4>Ordered by " + args.getSignerName() + "</h4>\n" +
-                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Email: " + args.getSignerEmail() + "</p>\n" +
-                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Copy to: " + args.getCcName() + ", " + args.getCcEmail() + "</p>\n" +
+                "        <h4>Ordered by " + signerName + "</h4>\n" +
+                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Email: " + signerEmail + "</p>\n" +
+                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Copy to: " + ccName + ", " + ccEmail + "</p>\n" +
                 "        <p style=\"margin-top:3em;\">\n" +
                 "  Candy bonbon pastry jujubes lollipop wafer biscuit biscuit. Topping brownie sesame snaps sweet roll pie. Croissant danish biscuit soufflé caramels jujubes jelly. Dragée danish caramels lemon drops dragée. Gummi bears cupcake biscuit tiramisu sugar plum pastry. Dragée gummies applicake pudding liquorice. Donut jujubes oat cake jelly-o. Dessert bear claw chocolate cake gummies lollipop sugar plum ice cream gummies cheesecake.\n" +
                 "        </p>\n" +

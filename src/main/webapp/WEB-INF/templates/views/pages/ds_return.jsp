@@ -10,8 +10,8 @@
         its value. Instead, query DocuSign as appropriate.</p>
 </c:if>
 
-<c:if test="${envelopeId != null}">
-    <p><b>envelopeId: ${envelopeId}.</b> The envelopeId parameter is supplied by DocuSign.</p>
+<c:if test="${qpEnvelopeId != null}">
+    <p><b>envelopeId: ${qpEnvelopeId}.</b> The envelopeId parameter is supplied by DocuSign.</p>
 </c:if>
 
 <c:if test="${state != null}">

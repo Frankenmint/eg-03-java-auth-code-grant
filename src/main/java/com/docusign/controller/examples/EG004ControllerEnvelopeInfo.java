@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 @Controller
 @RequestMapping("/eg004")
@@ -41,12 +39,18 @@ public class EG004ControllerEnvelopeInfo extends EGController {
     @Override
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
+        // Data for this method
+        // accessToken    (argument)
+        // basePath       (argument)
+        String accountId = args.getAccountId();
+        String envelopeId = args.getEnvelopeId();
 
+
+        // Step 1. get envelope info
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
         setMessage("Results from the Envelopes::get method:");
-        return envelopesApi.getEnvelope(args.getAccountId(), args.getEnvelopeId());
+        return envelopesApi.getEnvelope(accountId, envelopeId);
     }
-
 }

@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 @Controller
 @RequestMapping("/eg006")
@@ -45,13 +43,22 @@ public class EG006ControllerEnvelopeDocs extends EGController {
     @Override
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
+        // Data for this method
+        // accessToken    (argument)
+        // basePath       (argument)
+        String accountId = args.getAccountId();
+        String envelopeId = args.getEnvelopeId();
+
+
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
-        EnvelopeDocumentsResult result = envelopesApi.listDocuments(args.getAccountId(), args.getEnvelopeId());
+        // Step 1. List the envelope's documents
+        EnvelopeDocumentsResult result = envelopesApi.listDocuments(accountId, envelopeId);
+
+        // Step 2. Process results
         // Save the envelopeId and its list of documents in the session so
         // they can be used in example 7 (download a document)
-
         JSONArray envelopeDocItems = new JSONArray();
         envelopeDocItems.put(createStandardDoc("Combined", "content", "combined"));
         envelopeDocItems.put(createStandardDoc("Zip archive", "zip", "archive"));
@@ -66,7 +73,7 @@ public class EG006ControllerEnvelopeDocs extends EGController {
         }
 
         JSONObject envelopeDocuments = new JSONObject();
-        envelopeDocuments.put("envelopeId", session.getAttribute("envelopeId"));
+        envelopeDocuments.put("envelopeId", envelopeId);
         envelopeDocuments.put("documents", envelopeDocItems);
 
         session.setAttribute("envelopeDocuments", envelopeDocuments);
@@ -76,15 +83,10 @@ public class EG006ControllerEnvelopeDocs extends EGController {
     }
 
     private JSONObject createStandardDoc(String name, String type, String documentId) {
-
         JSONObject o = new JSONObject();
-
         o.put("name", name);
         o.put("type", type);
         o.put("documentId", documentId);
-
         return o;
     }
-
-
 }

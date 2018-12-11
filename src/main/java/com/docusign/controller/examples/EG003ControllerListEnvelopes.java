@@ -10,14 +10,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.io.IOException;
-
 @Controller
 @RequestMapping("/eg003")
 public class EG003ControllerListEnvelopes extends EGController {
     @Override
     protected void addSpecialAttributes(ModelMap model) {
-
     }
 
     @Override
@@ -38,6 +35,10 @@ public class EG003ControllerListEnvelopes extends EGController {
     @Override
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
+        // Data for this method
+        // accessToken    (argument)
+        // basePath       (argument)
+        String accountId = args.getAccountId();
 
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
@@ -47,7 +48,7 @@ public class EG003ControllerListEnvelopes extends EGController {
         LocalDate date = LocalDate.now().minusDays(30);
         options.setFromDate(date.toString("yyyy/MM/dd"));
 
-        EnvelopesInformation results = envelopesApi.listStatusChanges(args.getAccountId(), options);
+        EnvelopesInformation results = envelopesApi.listStatusChanges(accountId, options);
         setMessage("Results from the Envelopes::listStatusChanges method:");
         return results;
     }

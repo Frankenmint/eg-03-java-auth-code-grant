@@ -49,14 +49,21 @@ public class EG001ControllerEmbeddedSigning extends EGController {
     @Override
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException, IOException {
+        // Data for this method
+        // accessToken  (argument)
+        // basePath     (argument)
+        String signerName = args.getSignerName();
+        String signerEmail = args.getSignerEmail();
+        String accountId = args.getAccountId();
+
         // Step 1. Create the envelope definition
-        EnvelopeDefinition envelope = makeEnvelope(args.getSignerEmail(), args.getSignerName());
+        EnvelopeDefinition envelope = makeEnvelope(signerEmail, signerName);
 
         // Step 2. Call DocuSign to create the envelope
         ApiClient apiClient = new ApiClient(basePath);
         apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
         EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
-        EnvelopeSummary results = envelopesApi.createEnvelope(args.getAccountId(), envelope);
+        EnvelopeSummary results = envelopesApi.createEnvelope(accountId, envelope);
 
         String envelopeId = results.getEnvelopeId();
 
@@ -65,20 +72,29 @@ public class EG001ControllerEmbeddedSigning extends EGController {
         args.setEnvelopeId(envelopeId);
 
         // Step 3. create the recipient view, the Signing Ceremony
-        RecipientViewRequest viewRequest = makeRecipientViewRequest(args.getSignerEmail(), args.getSignerName());
+        RecipientViewRequest viewRequest = makeRecipientViewRequest(signerEmail, signerName);
         // call the CreateRecipientView API
-        ViewUrl results1 = envelopesApi.createRecipientView(args.getAccountId(), envelopeId, viewRequest);
+        ViewUrl results1 = envelopesApi.createRecipientView(accountId, envelopeId, viewRequest);
 
         // Step 4. Redirect the user to the Signing Ceremony
         // Don't use an iFrame!
         // State can be stored/recovered using the framework's session or a
         // query parameter on the returnUrl (see the makeRecipientViewRequest method)
-        args.setRedirectUrl("redirect:"+results1.getUrl());
+        String redirectUrl = results1.getUrl();
+        // save the redirect info
+        args.setRedirectUrl("redirect:" + redirectUrl);
 
         return null;
     }
 
     private RecipientViewRequest makeRecipientViewRequest(String signerEmail, String signerName) {
+        // Data for this method
+        // signerEmail    (argument)
+        // signerName     (argument)
+        // dsReturnUrl    (class constant) url on this app that DocuSign will redirect to
+        // signerClientId (class constant) the id of the signer in this app
+        // dsPingUrl      (class constant) optional url in this app that DocuSign signing ceremony should ping
+
         RecipientViewRequest viewRequest = new RecipientViewRequest();
         // Set the url where you want the recipient to go once they are done signing
         // should typically be a callback route somewhere in your app.
@@ -114,8 +130,13 @@ public class EG001ControllerEmbeddedSigning extends EGController {
     }
 
     private EnvelopeDefinition makeEnvelope(String signerEmail, String signerName) throws IOException {
-        byte[] buffer = readFile(config.docPdf);
+        // Data for this method
+        // signerEmail    (argument)
+        // signerName     (argument)
+        // signerClientId (class constant) the id of the signer in this app
+        String docPdf = config.docPdf; // location of the source document
 
+        byte[] buffer = readFile(docPdf);
         EnvelopeDefinition envelopeDefinition = new EnvelopeDefinition();
         envelopeDefinition.setEmailSubject("Please sign this document");
         Document doc1 = new Document();
@@ -166,6 +187,4 @@ public class EG001ControllerEmbeddedSigning extends EGController {
 
         return envelopeDefinition;
     }
-
-
 }

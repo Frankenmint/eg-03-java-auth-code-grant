@@ -1,13 +1,11 @@
 package com.docusign.controller.examples;
 
-import com.docusign.esign.client.ApiException;
 import com.docusign.esign.model.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -23,9 +21,7 @@ public class EG010ControllerSendBinaryDocs extends EGController {
 
     @Override
     protected void addSpecialAttributes(ModelMap model) {
-
     }
-
 
     @Override
     protected String getEgName() {
@@ -45,6 +41,14 @@ public class EG010ControllerSendBinaryDocs extends EGController {
     @Override
     protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
                                              String accessToken, String basePath) throws IOException {
+        // Data for this method
+        // accessToken    (argument)
+        // basePath       (argument)
+        // config.docDocx (filename for the docx source doc)
+        // config.docPdf  (filename for the pdf source doc)
+        String accountId = args.getAccountId();
+
+
         // Step 1. Make the envelope JSON request body
         JSONObject envelopeJSON = makeEnvelopeJSON(args);
         Object results = null;
@@ -65,19 +69,17 @@ public class EG010ControllerSendBinaryDocs extends EGController {
         // Step 3. Create the multipart body
         String CRLF = "\r\n", boundary = "multipartboundary_multipartboundary", hyphens = "--";
 
-        URL uri = new URL(session.getAttribute("basePath")
-                + "/v2/accounts/" + args.getAccountId() + "/envelopes");
+        URL uri = new URL(basePath
+                + "/v2/accounts/" + accountId + "/envelopes");
 
         HttpsURLConnection connection = (HttpsURLConnection) uri.openConnection();
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Accept", "application/json");
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
-        connection.setRequestProperty("Authorization", "Bearer " + user.getAccessToken());
+        connection.setRequestProperty("Authorization", "Bearer " + accessToken);
         connection.setDoOutput(true);
 
         DataOutputStream buffer = new DataOutputStream(connection.getOutputStream());
-
-
         buffer.writeBytes(hyphens);
         buffer.writeBytes(boundary);
         buffer.writeBytes(CRLF);
@@ -151,6 +153,13 @@ public class EG010ControllerSendBinaryDocs extends EGController {
     }
 
     private JSONObject makeEnvelopeJSON(WorkArguments args) {
+        // Data for this method
+        String signerEmail = args.getSignerEmail();
+        String signerName = args.getSignerName();
+        String ccEmail = args.getCcEmail();
+        String ccName = args.getCcName();
+
+
         // document 1 (html) has tag **signature_1**
         // document 2 (docx) has tag /sn1/
         // document 3 (pdf) has tag /sn1/
@@ -187,8 +196,8 @@ public class EG010ControllerSendBinaryDocs extends EGController {
         // create a signer recipient to sign the document, identified by name and email
         // We're setting the parameters via the object creation
         Signer signer1 = new Signer();
-        signer1.setEmail(args.getSignerEmail());
-        signer1.setName(args.getSignerName());
+        signer1.setEmail(signerEmail);
+        signer1.setName(signerName);
         signer1.setRecipientId("1");
         signer1.setRoutingOrder("1");
         // routingOrder (lower means earlier) determines the order of deliveries
@@ -198,8 +207,8 @@ public class EG010ControllerSendBinaryDocs extends EGController {
         // create a cc recipient to receive a copy of the documents, identified by name and email
         // We're setting the parameters via setters
         CarbonCopy cc1 = new CarbonCopy();
-        cc1.setEmail(args.getCcEmail());
-        cc1.setName(args.getCcName());
+        cc1.setEmail(ccEmail);
+        cc1.setName(ccName);
         cc1.setRoutingOrder("2");
         cc1.recipientId("2");
         // Create signHere fields (also known as tabs) on the documents,
@@ -240,6 +249,13 @@ public class EG010ControllerSendBinaryDocs extends EGController {
     }
 
     private String document1(WorkArguments args) {
+        // Data for this method
+        String signerEmail = args.getSignerEmail();
+        String signerName = args.getSignerName();
+        String ccEmail = args.getCcEmail();
+        String ccName = args.getCcName();
+
+
         return " <!DOCTYPE html>\n" +
                 "    <html>\n" +
                 "        <head>\n" +
@@ -251,9 +267,9 @@ public class EG010ControllerSendBinaryDocs extends EGController {
                 "        <h2 style=\"font-family: 'Trebuchet MS', Helvetica, sans-serif;\n" +
                 "          margin-top: 0px;margin-bottom: 3.5em;font-size: 1em;\n" +
                 "          color: darkblue;\">Order Processing Division</h2>\n" +
-                "        <h4>Ordered by " + args.getSignerName() + "</h4>\n" +
-                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Email: " + args.getSignerEmail() + "</p>\n" +
-                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Copy to: " + args.getCcName() + ", " + args.getCcEmail() + "</p>\n" +
+                "        <h4>Ordered by " + signerName + "</h4>\n" +
+                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Email: " + signerEmail + "</p>\n" +
+                "        <p style=\"margin-top:0em; margin-bottom:0em;\">Copy to: " + ccName + ", " + ccEmail + "</p>\n" +
                 "        <p style=\"margin-top:3em;\">\n" +
                 "  Candy bonbon pastry jujubes lollipop wafer biscuit biscuit. Topping brownie sesame snaps sweet roll pie. Croissant danish biscuit soufflé caramels jujubes jelly. Dragée danish caramels lemon drops dragée. Gummi bears cupcake biscuit tiramisu sugar plum pastry. Dragée gummies applicake pudding liquorice. Donut jujubes oat cake jelly-o. Dessert bear claw chocolate cake gummies lollipop sugar plum ice cream gummies cheesecake.\n" +
                 "        </p>\n" +
