@@ -1,11 +1,10 @@
 package com.docusign.controller;
 
-import com.docusign.esign.client.ApiClient;
+import com.docusign.DSConfiguration;
 import com.docusign.esign.client.auth.OAuth;
 import com.docusign.model.Locals;
 import com.docusign.model.Session;
 import com.docusign.model.User;
-import com.docusign.DSConfiguration;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,6 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -37,9 +35,6 @@ public class GlobalControllerAdvice {
     @Autowired
     DSConfiguration config;
 
-    @Resource(name = "sessionApiClient")
-    ApiClient sessionApiClient;
-
     @Autowired
     private HttpSession httpSession;
 
@@ -51,6 +46,16 @@ public class GlobalControllerAdvice {
 
     @Autowired(required = false)
     private OAuth.Account Account;
+
+    @ModelAttribute("accessToken")
+    public String getAccessToken() {
+        return (String) httpSession.getAttribute("accessToken");
+    }
+
+    @ModelAttribute("basePath")
+    public String getBaseUri() {
+        return (String) httpSession.getAttribute("basePath");
+    }
 
     @ModelAttribute("documentOptions")
     public List<JSONObject> populateDocumentOptions() {
@@ -91,8 +96,7 @@ public class GlobalControllerAdvice {
             user.setName(user1.getName());
             locals.setUser(user);
             user.setAccessToken(details.getTokenValue());
-            sessionApiClient.addDefaultHeader("Authorization", "Bearer " + details.getTokenValue());
-//                user.accessToken = details.getTokenValue();
+            httpSession.setAttribute("accessToken", details.getTokenValue());
 //                user.refreshToken = accessToken.getRefreshToken().getValue();
 //                user.tokenExpirationTimestamp = ((30 * 60 * 1000) + System.currentTimeMillis());
 

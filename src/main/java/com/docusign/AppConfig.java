@@ -1,13 +1,10 @@
 package com.docusign;
 
-import com.docusign.esign.client.ApiClient;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.context.embedded.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
@@ -25,13 +22,6 @@ public class AppConfig extends WebMvcConfigurerAdapter {
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public DSConfiguration config() {
         return new DSConfiguration();
-    }
-
-    @Bean
-    @Scope(value = WebApplicationContext.SCOPE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public ApiClient sessionApiClient() {
-        // initial value set oauth server
-        return new ApiClient("https://demo.docusign.net/restapi");
     }
 
     @Bean

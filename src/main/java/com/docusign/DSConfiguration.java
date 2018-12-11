@@ -30,8 +30,12 @@ public class DSConfiguration {
 
     @Value("${DS_SIGNER_NAME:{USER_NAME}}")
     private String signerName;
-
-
+    @Value("${Gateway_Account_Id}")
+    public String gatewayAccountId;
+    @Value("${Gateway_Name}")
+    public String gatewayName;
+    @Value("${Gateway_Display_Name}")
+    public String gatewayDisplayName;
 
     public boolean production = false;
     public boolean debug = true; // Send debugging statements to console

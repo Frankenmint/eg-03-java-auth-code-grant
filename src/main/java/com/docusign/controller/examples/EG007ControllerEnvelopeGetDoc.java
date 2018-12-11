@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.EnvelopesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.model.OptionItem;
 import org.json.JSONArray;
@@ -9,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.ArrayList;
 
 @Controller
@@ -59,14 +58,28 @@ public class EG007ControllerEnvelopeGetDoc extends EGController {
     }
 
     @Override
-    protected Object doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
-        EnvelopesApi envelopesApi = new EnvelopesApi(sessionApiClient);
+    protected Object doWork(WorkArguments args, ModelMap model,
+                            String accessToken, String basePath) throws ApiException {
+        // Data for this method
+        // accessToken    (argument)
+        // basePath       (argument)
+        String accountId = args.getAccountId();
+        String envelopeId = args.getEnvelopeId();
+        String documentId = args.getDocumentId();
+        JSONObject envelopeDocuments = args.getEnvelopeDocuments(); // stored by EG006ControllerEnvelopeDocs
+
+
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        EnvelopesApi envelopesApi = new EnvelopesApi(apiClient);
+
         // Step 1. EnvelopeDocuments::get.
         // Exceptions will be caught by the calling function
-        byte[] results = envelopesApi.getDocument(args.getAccountId(), args.getEnvelopeId(), args.getDocumentId());
+        byte[] results = envelopesApi.getDocument(accountId, envelopeId, documentId);
 
-        JSONArray documents = args.getEnvelopeDocuments().getJSONArray("documents");
-        JSONObject docItem = find(documents, args.getDocumentId());
+        // Step 2. process results
+        JSONArray documents = envelopeDocuments.getJSONArray("documents");
+        JSONObject docItem = find(documents, documentId);
 
         String docName = docItem.getString("name");
         boolean hasPDFsuffix = docName.toUpperCase().endsWith(".PDF");
@@ -99,14 +112,12 @@ public class EG007ControllerEnvelopeGetDoc extends EGController {
     }
 
     private JSONObject find(JSONArray documents, String documentId) {
-
         for (int i = 0; i < documents.length(); i++) {
             JSONObject item = documents.getJSONObject(i);
             if (item.getString("documentId").equalsIgnoreCase(documentId)) {
                 return item;
             }
         }
-
         return null;
     }
 }

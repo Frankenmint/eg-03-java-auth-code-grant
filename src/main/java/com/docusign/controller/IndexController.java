@@ -28,13 +28,14 @@ public class IndexController {
     }
 
     @RequestMapping(path = "/ds-return",method = RequestMethod.GET)
-    public String returnController(@RequestParam("state") String state,
-                                   @RequestParam("event") String event,
+    public String returnController(@RequestParam(value="state", required = false) String state,
+                                   @RequestParam(value="event", required = false) String event,
+                                   @RequestParam(value="envelopeId", required = false) String envelopeId,
                                    ModelMap model) {
         model.addAttribute("title" , "Return from DocuSign");
         model.addAttribute("event", event);
         model.addAttribute("state", state);
-        model.addAttribute("envelopeId", model.getOrDefault("envelopeId", null));
+        model.addAttribute("qpEnvelopeId", envelopeId);
         return "pages/ds_return";
     }
 }

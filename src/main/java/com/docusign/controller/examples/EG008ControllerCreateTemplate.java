@@ -1,6 +1,7 @@
 package com.docusign.controller.examples;
 
 import com.docusign.esign.api.TemplatesApi;
+import com.docusign.esign.client.ApiClient;
 import com.docusign.esign.client.ApiException;
 import com.docusign.esign.model.*;
 import com.sun.jersey.core.util.Base64;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,7 +22,6 @@ public class EG008ControllerCreateTemplate extends EGController {
 
     @Override
     protected void addSpecialAttributes(ModelMap model) {
-
     }
 
     @Override
@@ -41,30 +40,49 @@ public class EG008ControllerCreateTemplate extends EGController {
     }
 
     @Override
-    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model) throws ApiException, IOException {
-        args.setTemplateName("Example Signer and CC template");
-        TemplatesApi templatesApi = new TemplatesApi(sessionApiClient);
-        TemplatesApi.ListTemplatesOptions options = templatesApi.new ListTemplatesOptions();
-        options.setSearchText(args.getTemplateName());
-        EnvelopeTemplateResults results = templatesApi.listTemplates(args.getAccountId(), options);
+    protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
+                                             String accessToken, String basePath) throws ApiException, IOException {
+        // Data for this method
+        // accessToken    (argument)
+        // basePath       (argument)
+        // config.appUrl  (url of the application itself)
+        String accountId = args.getAccountId();
+        String templateName = "Example Signer and CC template";
 
+
+        // Step 1. list existing templates
+        ApiClient apiClient = new ApiClient(basePath);
+        apiClient.addDefaultHeader("Authorization", "Bearer " + accessToken);
+        TemplatesApi templatesApi = new TemplatesApi(apiClient);
+        TemplatesApi.ListTemplatesOptions options = templatesApi.new ListTemplatesOptions();
+        options.setSearchText(templateName);
+        // get the results
+        EnvelopeTemplateResults results = templatesApi.listTemplates(accountId, options);
+
+        // Step 2. process results. Template found?
         String templateId;
         String resultsTemplateName;
         boolean createdNewTemplate;
-
         if (Integer.parseInt(results.getResultSetSize()) > 0) {
+            // Yes. Save the template id and name
             EnvelopeTemplateResult template = results.getEnvelopeTemplates().get(0);
             templateId = template.getTemplateId();
             resultsTemplateName = template.getName();
             createdNewTemplate = false;
         } else {
+            // No. Make a new template
+            // Prepare request
+            args.setTemplateName("Example Signer and CC template");
             EnvelopeTemplate templateReqObject = makeTemplate(args);
-            TemplateSummary template = templatesApi.createTemplate(args.getAccountId(), templateReqObject);
+            // Call DocuSign
+            TemplateSummary template = templatesApi.createTemplate(accountId, templateReqObject);
+            // process result
             templateId = template.getTemplateId();
             resultsTemplateName = template.getName();
             createdNewTemplate = true;
         }
 
+        // Save templateId
         session.setAttribute("templateId", templateId);
         String msg = createdNewTemplate ?
                 "The template has been created!" :
@@ -233,7 +251,6 @@ public class EG008ControllerCreateTemplate extends EGController {
         template.setEnvelopeTemplateDefinition(envelopeTemplateDefinition);
         template.setRecipients(recipients);
         template.setStatus("created");
-
 
         return template;
     }
