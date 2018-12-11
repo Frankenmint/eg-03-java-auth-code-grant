@@ -102,7 +102,7 @@ private information will not be added to your repository.
 Do not store your client id (Integration Key), secret, or other
 private information in your code repository.
 
-#### Payments code example
+### Payments code example
 To use the payments example, create a
 test payments gateway for your developer sandbox account.
 
@@ -110,7 +110,7 @@ See the
 [PAYMENTS_INSTALLATION.md](https://github.com/docusign/eg-03-java-auth-code-grant/blob/master/PAYMENTS_INSTALLATION.md)
 file for instructions.
 
-Then add the payment gateway account id to the **ds_configuration.js** file.
+Then add the payment gateway account id to the **application.properties** file.
 
 ## Using the examples with other authentication flows
 
