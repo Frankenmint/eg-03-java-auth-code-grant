@@ -35,6 +35,7 @@ public class EG014ControllerCollectPayment extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model, String accessToken, String basePath) throws ApiException, IOException {
         // Data for this method
         // accessToken  (argument)
@@ -315,4 +316,5 @@ public class EG014ControllerCollectPayment extends EGController {
 
         return env;
     }
+    // ***DS.snippet.0.end
 }
