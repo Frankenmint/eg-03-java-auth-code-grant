@@ -58,6 +58,7 @@ public class EG007ControllerEnvelopeGetDoc extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
         // Data for this method
@@ -120,4 +121,5 @@ public class EG007ControllerEnvelopeGetDoc extends EGController {
         }
         return null;
     }
+    // ***DS.snippet.0.end
 }

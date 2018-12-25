@@ -37,6 +37,7 @@ public class EG004ControllerEnvelopeInfo extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
         // Data for this method
@@ -53,4 +54,5 @@ public class EG004ControllerEnvelopeInfo extends EGController {
         setMessage("Results from the Envelopes::get method:");
         return envelopesApi.getEnvelope(accountId, envelopeId);
     }
+    // ***DS.snippet.0.end
 }

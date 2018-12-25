@@ -40,6 +40,7 @@ public class EG008ControllerCreateTemplate extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
                                              String accessToken, String basePath) throws ApiException, IOException {
         // Data for this method
@@ -271,4 +272,5 @@ public class EG008ControllerCreateTemplate extends EGController {
         radio.setRequired("false");
         return radio;
     }
+    // ***DS.snippet.0.end
 }

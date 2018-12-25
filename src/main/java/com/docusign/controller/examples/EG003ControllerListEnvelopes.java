@@ -33,6 +33,7 @@ public class EG003ControllerListEnvelopes extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
         // Data for this method
@@ -52,4 +53,5 @@ public class EG003ControllerListEnvelopes extends EGController {
         setMessage("Results from the Envelopes::listStatusChanges method:");
         return results;
     }
+    // ***DS.snippet.0.end
 }

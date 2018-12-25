@@ -47,6 +47,7 @@ public class EG001ControllerEmbeddedSigning extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException, IOException {
         // Data for this method
@@ -187,4 +188,5 @@ public class EG001ControllerEmbeddedSigning extends EGController {
 
         return envelopeDefinition;
     }
+    // ***DS.snippet.0.end
 }

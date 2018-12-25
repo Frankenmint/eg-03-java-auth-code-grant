@@ -40,6 +40,7 @@ public class EG011ControllerEmbeddedSending extends EGController {
     EG002ControllerSigningViaEmail controller2;
 
     @Override
+    // ***DS.snippet.0.start
     protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
                                              String accessToken, String basePath) throws ApiException, IOException {
         // Data for this method
@@ -84,4 +85,5 @@ public class EG011ControllerEmbeddedSending extends EGController {
         args.setRedirectUrl("redirect:" + url);
         return null;
     }
+    // ***DS.snippet.0.end
 }

@@ -38,6 +38,7 @@ public class EG009ControllerUseTemplate extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
         // Data for this method
@@ -83,4 +84,5 @@ public class EG009ControllerUseTemplate extends EGController {
         env.setStatus("sent");
         return env;
     }
+    // ***DS.snippet.0.end
 }

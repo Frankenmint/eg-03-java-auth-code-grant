@@ -22,7 +22,6 @@ public class EG005ControllerEnvelopeRecipients extends EGController {
         model.addAttribute("envelopeOk", session.getAttribute("envelopeId") != null);
     }
 
-
     @Override
     protected String getEgName() {
         return "eg005";
@@ -39,6 +38,7 @@ public class EG005ControllerEnvelopeRecipients extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException {
         // Data for this method
@@ -54,4 +54,5 @@ public class EG005ControllerEnvelopeRecipients extends EGController {
         setMessage("Results from the EnvelopeRecipients::list method:");
         return envelopesApi.listRecipients(accountId, envelopeId);
     }
+    // ***DS.snippet.0.end
 }

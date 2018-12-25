@@ -39,6 +39,7 @@ public class EG010ControllerSendBinaryDocs extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
                                              String accessToken, String basePath) throws IOException {
         // Data for this method
@@ -278,4 +279,5 @@ public class EG010ControllerSendBinaryDocs extends EGController {
                 "        </body>\n" +
                 "    </html>";
     }
+    // ***DS.snippet.0.end
 }

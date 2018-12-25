@@ -35,6 +35,7 @@ public class EG002ControllerSigningViaEmail extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected Object doWork(WorkArguments args, ModelMap model,
                             String accessToken, String basePath) throws ApiException, IOException {
         // Data for this method
@@ -191,4 +192,5 @@ public class EG002ControllerSigningViaEmail extends EGController {
                 "        </body>\n" +
                 "    </html>";
     }
+    // ***DS.snippet.0.end
 }

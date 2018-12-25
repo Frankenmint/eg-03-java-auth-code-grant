@@ -45,6 +45,7 @@ public class EG013ControllerAddDocToTemplate extends EGController {
     }
 
     @Override
+    // ***DS.snippet.0.start
     protected EnvelopeDocumentsResult doWork(WorkArguments args, ModelMap model,
                                              String accessToken, String basePath) throws ApiException {
         // Data for this method
@@ -247,4 +248,5 @@ public class EG013ControllerAddDocToTemplate extends EGController {
                 "        </body>\n" +
                 "    </html>";
     }
+    // ***DS.snippet.0.end
 }
