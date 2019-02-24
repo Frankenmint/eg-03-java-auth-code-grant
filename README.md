@@ -54,7 +54,7 @@ This repo is a Java Spring Boot application that demonstrates:
 
 ### Prerequisites
 1. A DocuSign Developer Sandbox account (email and password) on [demo.docusign.net](https://demo.docusign.net).
-   Create a [free account](https://go.docusign.com/o/sandbox/).
+   Create a [free account](https://go.docusign.com/sandbox/productshot/?elqCampaignId=16533).
 1. A DocuSign Integration Key (a client ID) that is configured to use the
    OAuth Authorization Code flow.
    You will need the **Integration Key** itself, and its **secret**.
