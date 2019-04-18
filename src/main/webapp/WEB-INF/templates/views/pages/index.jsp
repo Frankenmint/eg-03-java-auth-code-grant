@@ -5,7 +5,7 @@
   <!-- IF not signed in -->
   <div class="jumbotron">
     <h1 class="display-4">Welcome!</h1>
-    <p class="Xlead">Welcome to the DocuSign Node.JS examples with
+    <p class="Xlead">Welcome to the DocuSign Java examples with
       OAuth Authorization Code Grant.</p>
   </div>
 </c:if>
@@ -14,7 +14,7 @@
   <h2>Welcome</h2>
   <p>This launcher both demonstrates use of the OAuth Authorization Code Grant flow and includes multiple usage examples for the DocuSign eSignature REST API.</p>
     <c:if test="${showDoc == true}">
-        <p><a target='_blank' href='${documentation}'>Documentation</a> on using OAuth Authorization Code Grant from a Node Express application.</p>
+        <p><a target='_blank' href='${documentation}'>Documentation</a> on using OAuth Authorization Code Grant from a Java Spring Framework application.</p>
     </c:if>
 
   <h2>Basic Examples</h2>
